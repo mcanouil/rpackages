@@ -3,9 +3,9 @@ cache: packages
 
 pandoc_version: 2.3.1
 
-script: Rscript -e 'webshot::install_phantomjs(); rmarkdown::render(input = "rpackages.Rmd", output_format = "ioslides_presentation")'
+script: Rscript -e 'rmarkdown::render(input = "rpackages.Rmd", output_format = "ioslides_presentation")'
 
-before_deploy: Rscript -e 'webshot::install_phantomjs(); remotes::install_cran("pkgdown")'
+before_deploy: Rscript -e 'remotes::install_cran("pkgdown")'
 
 deploy:
   provider: script
