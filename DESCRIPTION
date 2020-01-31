@@ -2,5 +2,7 @@ Package: rpackages
 Title: rpackages
 Version: 0.0.1
 Imports: 
-    rmarkdown
-
+    rmarkdown (>= 1.16),
+    usethis (>= 1.5.1.9000),
+    devtools (>= 2.2.1),
+    roxygen2 (>= 6.1.1)

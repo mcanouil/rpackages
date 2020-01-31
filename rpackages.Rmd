@@ -193,7 +193,7 @@ git config --global --list
 First an access token from GitHub needs to be created: https://github.com/settings/tokens
 
 ```{r}
-usethis::browse_github_token() # open the form in a browser
+browse_github_token() # open the form in a browser
 edit_r_environ() # open .Renviron file from your home
 ```
 
