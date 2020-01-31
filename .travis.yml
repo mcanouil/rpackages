@@ -3,12 +3,12 @@ cache: packages
 
 pandoc_version: 2.3.1
 
-script: Rscript -e 'rmarkdown::render(input = "index.Rmd")'
+script: Rscript -e 'webshot::install_phantomjs(); rmarkdown::render(input = "rpackages.Rmd", output_format = "ioslides_presentation")'
 
-before_deploy: Rscript -e 'remotes::install_cran("pkgdown")'
+before_deploy: Rscript -e 'webshot::install_phantomjs(); remotes::install_cran("pkgdown")'
 
 deploy:
   provider: script
-  script: Rscript -e 'source("https://raw.githubusercontent.com/mcanouil/DEV/master/R/deploy.R"); deploy_site("index.Rmd", commit_message = "rpackages")'
+  script: Rscript -e 'source("https://raw.githubusercontent.com/mcanouil/DEV/master/R/deploy.R"); deploy_site("rpackages.Rmd", commit_message = "rpackages slides", output_format = "ioslides_presentation");'
   skip_cleanup: true
 
