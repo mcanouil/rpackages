@@ -66,10 +66,6 @@ opts_chunk$set(
   fig.align = "center",
   fig.path = "images/"
 )
-
-### Define theme
-devtools::source_url("https://github.com/mcanouil/DEV/raw/master/R/theme_black.R")
-theme_set(theme_black(base_size = 11))
 ```
 
 # Helpers | R Packages {.flexbox .vcenter}
