@@ -1,0 +1,648 @@
+---
+title: '<i class="fab fa-r-project"></i> - Packages'
+subtitle: "A Short Introduction"
+author: 
+  - name: "Mickaël CANOUIL, *Ph.D.*"
+date: "Monday, the 3<sup>rd</sup> of February, 2020"
+monofont: "Source Code Pro"
+monofontoptions: "Scale=0.7"
+csl: template/csl/apa.csl
+params:
+  output_directory: "./"
+  eval: FALSE
+output:
+  ioslides_presentation:
+    css: [ "template/mc_theme.css", "template/r_colour.css"]
+    logo: "template/logo_UMR.png"
+    smaller: false
+    self_contained: true
+    mathjax: default
+    fig_width: 5.94
+    fig_height: 3.30
+    transition: 0.5
+    incremental: false
+    code_download: true
+  html_document:
+    toc: false
+    number_sections: TRUE
+    fig_width: 5.94
+    fig_height: 3.30
+    self_contained: true
+    theme: simplex
+editor_options: 
+  chunk_output_type: console
+---
+
+<!--<style>.title-slide hgroup h1 { font-size: 600%; }</style>-->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css">
+
+```{r setup, include = FALSE}
+options(stringsAsFactors = FALSE)
+options(width = 80)
+options(kableExtra.html.bsTable = TRUE)
+
+output_directory <- params[["output_directory"]]
+
+### Load packages and functions
+library(tidyverse)
+library(knitr)
+library(rmarkdown)
+library(kableExtra)
+
+### Set knitr rmarkdown chunk options
+opts_chunk$set(
+  include = TRUE,
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  eval = params[["eval"]],
+  tidy = FALSE,
+  crop = TRUE,
+  autodep = FALSE,
+  dpi = 120,
+  # cache = FALSE,
+  # cache.path = NULL,
+  width = getOption("width"),
+  results = "asis",
+  comment = "#>",
+  fig.align = "center",
+  fig.path = "images/"
+)
+
+### Define theme
+devtools::source_url("https://github.com/mcanouil/DEV/raw/master/R/theme_black.R")
+theme_set(theme_black(base_size = 11))
+```
+
+# Helpers | R Packages {.flexbox .vcenter}
+
+## `devtools`: To Develop R Packages
+
+[https://devtools.r-lib.org/](https://devtools.r-lib.org/)
+
+```{r}
+# Install devtools from CRAN
+install.packages("devtools")
+
+# Or the development version from GitHub:
+# install.packages("devtools")
+devtools::install_github("r-lib/devtools")
+```
+
+```{r}
+library("devtools")
+```
+
+
+## `roxygen2`: To Document the Code
+
+[https://roxygen2.r-lib.org/](https://roxygen2.r-lib.org/)
+
+```{r}
+# Install devtools from CRAN
+install.packages("roxygen2")
+
+# Or the development version from GitHub:
+# install.packages("devtools")
+devtools::install_github("r-lib/roxygen2")
+```
+
+```{r}
+library("roxygen2")
+```
+
+## `roxygen2`: To Document the Code
+
+```{r}
+#' Add to message on top of a call to `print()`
+#'
+#' This function print a greeting message on top of
+#' the regular call to `print()`.
+#'
+#' @inheritParams print
+#' @param msg A string to print as a greeting message
+#' @export
+#' @examples
+#' print_msg(1, "The value is: ")
+print_msg <- function(x, msg) {
+  message(msg)
+  x
+}
+```
+
+
+## `usethis`: To Setup the Environment
+
+[https://usethis.r-lib.org/](https://usethis.r-lib.org/)
+
+```{r}
+# Install devtools from CRAN
+install.packages("usethis")
+
+# Or the development version from GitHub:
+# install.packages("devtools")
+devtools::install_github("r-lib/usethis")
+```
+
+```{r}
+library("usethis")
+```
+
+
+## `usethis`: To Setup the Environment
+
+Global options for `usethis`:
+
+```{r}
+options(
+  usethis.full_name = "Firstname Lastname",
+  usethis.protocol  = "ssh",
+  usethis.description = list(
+    `Authors@R` = 'person(
+      given = "Firstname",
+      family = "Lastname",
+      role = c("aut", "cre"),
+      email = "Firstname.Lastname@cnrs.fr",
+      comment = c(ORCID = "0000-0000-0000-0000")
+    )',
+    Version = "0.0.0.9000"
+  )
+)
+```
+
+## `usethis`: To Setup the Environment
+
+Setup Git:
+
+```{r}
+use_git_config(
+  user.name = "Firstname Lastname", 
+  user.email = "Firstname.Lastname@cnrs.fr"
+)
+# git_sitrep() # To check if Git is configured properly
+```
+
+```{bash}
+git config --global user.name 'Firstname Lastname'
+git config --global user.email 'Firstname.Lastname@cnrs.fr'
+git config --global --list
+```
+
+## `usethis`: To Setup the Environment
+
+First an access token from GitHub needs to be created: https://github.com/settings/tokens
+
+```{r}
+usethis::browse_github_token() # open the form in a browser
+edit_r_environ() # open .Renviron file from your home
+```
+
+Edit the `.Renviron` and add your token.
+```{txt}
+GITHUB_PAT=xloltrglmlm9v0wqb4zgnks86z5uwkqgoat29aar
+```
+
+Restart and check if you have acces to your token
+```{r}
+Sys.getenv("GITHUB_PAT")
+github_token()
+```
+
+
+# Let's `usethis` | Create an R package {.flexbox .vcenter}
+
+## `usethis`: A Tidy Package {.smaller}
+
+```{r}
+library("usethis")
+create_tidy_package()
+
+function (path, name = "RStudio") {
+  path <- create_package(path, rstudio = TRUE, open = FALSE)
+  old_project <- proj_set(path)
+  on.exit(proj_set(old_project), add = TRUE)
+  use_roxygen_md()
+  use_testthat()
+  use_gpl3_license(name)
+  use_tidy_description()
+  use_readme_rmd(open = FALSE)
+  use_lifecycle_badge("experimental")
+  use_cran_badge()
+  use_cran_comments(open = FALSE)
+  use_tidy_github()
+  ui_todo("In the new package, remember to do:")
+  ui_todo("{ui_code('use_git()')}")
+  ui_todo("{ui_code('use_github()')}")
+  ui_todo("{ui_code('use_tidy_ci()')}")
+  ui_todo("{ui_code('use_pkgdown()')}")
+  ui_todo("{ui_code('use_pkgdown_travis()')}")
+  proj_activate(path)
+}
+```
+
+
+## `usethis`: A Tidy Package {.smaller}
+
+Create the package skeleton.
+
+```{r}
+path <- create_package("mypackage", rstudio = TRUE, open = FALSE)
+```
+```{txt}
+✔ Creating './'
+✔ Creating 'R/'
+✔ Writing 'DESCRIPTION'
+Package: mypackage
+Title: What the Package Does (One Line, Title Case)
+Version: 0.0.0.9000
+Authors@R (parsed):
+    * First Last <first.last@example.com> [aut, cre] (<https://orcid.org/YOUR-ORCID-ID>)
+Description: What the package does (one paragraph).
+License: What license it uses
+Encoding: UTF-8
+LazyData: true
+✔ Writing 'NAMESPACE'
+✔ Writing 'mypackage.Rproj'
+✔ Adding '.Rproj.user' to '.gitignore'
+✔ Adding '^mypackage\\.Rproj$', '^\\.Rproj\\.user$' to '.Rbuildignore'
+```
+
+## `usethis`: A Tidy Package
+
+Setup Rstudio project (`rstudio = TRUE` from `create_package()`).
+
+```{r}
+old_project <- proj_set(path)
+on.exit(proj_set(old_project), add = TRUE)
+```
+
+## `usethis`: A Tidy Package
+
+Setup roxygen2 as tool to render documentation.
+
+```{r}
+use_roxygen_md()
+```
+```{txt}
+✔ Setting Roxygen field in DESCRIPTION to 'list(markdown = TRUE)'
+✔ Setting RoxygenNote field in DESCRIPTION to '7.0.2'
+● Run `devtools::document()`
+```
+
+## `usethis`: A Tidy Package
+
+Setup unit test directory with default scripts.
+
+```{r}
+use_testthat()
+```
+```{txt}
+✔ Adding 'testthat' to Suggests field in DESCRIPTION
+✔ Creating 'tests/testthat/'
+✔ Writing 'tests/testthat.R'
+● Call `use_test()` to initialize a basic test file and open it for editing.
+```
+
+## `usethis`: A Tidy Package
+
+Setup licence (several available).
+
+```{r}
+use_gpl3_license("mypackage")
+```
+```{txt}
+✔ Setting License field in DESCRIPTION to 'GPL-3 + file LICENSE'
+✔ Writing 'LICENSE.md'
+✔ Adding '^LICENSE\\.md$' to '.Rbuildignore'
+✔ Writing 'LICENSE'
+```
+
+## `usethis`: A Tidy Package
+
+Format/clean `DESCRIPTION` file.
+
+```{r}
+use_tidy_description()
+```
+
+Add version for packages listed in `DESCRIPTION` (*e.g.*, `Imports` field).
+
+```{r}
+use_tidy_versions()
+```
+
+
+## `usethis`: A Tidy Package
+
+Add an Rmarkdown script to render the `README.md` file.
+
+```{r}
+use_readme_rmd(open = FALSE)
+```
+```{txt}
+✔ Writing 'README.Rmd'
+✔ Adding '^README\\.Rmd$' to '.Rbuildignore'
+```
+
+## `usethis`: A Tidy Package
+
+Add a development status badge following tidyverse convention.
+
+```{r}
+use_lifecycle_badge("experimental")
+```
+```{txt}
+✔ Adding Lifecycle: experimental badge to 'README.Rmd'
+● Re-knit 'README.Rmd
+```
+
+## `usethis`: A Tidy Package
+
+Add a CRAN badge displaying CRAN version.
+
+```{r}
+use_cran_badge()
+```
+```{txt}
+✔ Adding CRAN status badge to 'README.Rmd'
+● Re-knit 'README.Rmd'
+```
+
+## `usethis`: A Tidy Package
+
+Add a markdown file (used for the release to CRAN).
+
+```{r}
+use_cran_comments(open = FALSE)
+```
+```{txt}
+✔ Writing 'cran-comments.md'
+✔ Adding '^cran-comments\\.md$' to '.Rbuildignore'
+```
+
+## `usethis`: A Tidy Package {.smaller}
+
+Add default files to use in GitHub (*Check them*).  
+**Note:** `github/SUPPORT.md` must be edited to fix GitHub repository at line 23.
+
+```{r}
+use_tidy_github()
+```
+```{txt}
+✔ Creating '.github/'
+✔ Adding '^\\.github$' to '.Rbuildignore'
+✔ Writing '.github/CONTRIBUTING.md'
+✔ Creating '.github/ISSUE_TEMPLATE/'
+✔ Adding '^\\.github/ISSUE_TEMPLATE$' to '.Rbuildignore'
+✔ Writing '.github/ISSUE_TEMPLATE/issue_template.md'
+✔ Writing '.github/SUPPORT.md'
+✔ Writing '.github/CODE_OF_CONDUCT.md'
+● Don't forget to describe the code of conduct in your README:
+  Please note that the 'mypackage' project is released with a
+  [Contributor Code of Conduct](.github/CODE_OF_CONDUCT.md).
+  By contributing to this project, you agree to abide by its terms.
+  [Copied to clipboard]
+```
+
+## `usethis`: A Tidy Package
+
+```{r}
+ui_todo("In the new package, remember to do:")
+ui_todo("{ui_code('use_git()')}")
+ui_todo("{ui_code('use_github()')}")
+ui_todo("{ui_code('use_tidy_ci()')}")
+ui_todo("{ui_code('use_pkgdown()')}")
+ui_todo("{ui_code('use_pkgdown_travis()')}")
+```
+```{txt}
+● In the new package, remember to do:
+● `use_git()`
+● `use_github()`
+● `use_tidy_ci()`
+● `use_pkgdown()`
+● `use_pkgdown_travis()`
+```
+
+## `usethis`: A Tidy Package
+
+Open the newly created package as an Rstudio project.
+
+```{r}
+proj_activate(path)
+```
+```{txt}
+✔ Opening 'C:/mypackage' in new RStudio session
+```
+
+
+## `usethis`: A Tidy Package {.smaller}
+
+Setup the package to use Git.
+
+```{r}
+use_git()
+```
+```{txt}
+✔ Initialising Git repo
+✔ Adding '.Rhistory', '.RData' to '.gitignore'
+There are 11 uncommitted files:
+* '.github/'
+* '.gitignore'
+* '.Rbuildignore'
+* 'cran-comments.md'
+* 'DESCRIPTION'
+* 'LICENSE'
+* 'LICENSE.md'
+* 'mypackage.Rproj'
+* 'NAMESPACE'
+* 'README.Rmd'
+* 'tests/'
+Is it ok to commit them?
+
+1: I agree
+2: Not now
+3: No way
+```
+
+## `usethis`: A Tidy Package
+
+Setup a repository on GitHub for the package.
+
+```{r}
+use_github()
+```
+```{txt}
+✔ Setting active project to 'C:/mypackage'
+✔ Checking that current branch is 'master'
+● Check title and description
+  Name:        mypackage
+  Description: What the Package Does (One Line, Title Case)
+Are title and description ok?
+
+1: Negative
+2: Absolutely not
+3: Yup
+```
+
+## `usethis`: A Tidy Package {.smaller}
+
+Setup continuous integration using travis-CI and code coverage.
+
+```{r}
+use_tidy_ci()
+```
+```{txt}
+✔ Writing '.travis.yml'
+✔ Adding '^\\.travis\\.yml$' to '.Rbuildignore'
+✔ Writing 'codecov.yml'
+✔ Adding '^codecov\\.yml$' to '.Rbuildignore'
+✔ Adding 'R' to Depends field in DESCRIPTION
+✔ Adding 'covr' to Suggests field in DESCRIPTION
+✔ Adding '^\\.covrignore$' to '.Rbuildignore'
+✔ Adding 'R/deprec-*.R', 'R/compat-*.R' to '.covrignore'
+✔ Adding Travis build status badge to 'README.Rmd'
+● Re-knit 'README.Rmd'
+✔ Adding Codecov test coverage badge to 'README.Rmd'
+● Re-knit 'README.Rmd'
+✔ Replacing release environment in 'cran-comments.md'
+● Turn on travis for your repo at https://travis-ci.org/profile/user
+```
+
+## `usethis`: A Tidy Package
+
+Add utils for tidy-evaluation (*e.g.*, `.data` pronoun). 
+
+```{r}
+use_tidy_eval()
+```
+```{txt}
+✔ Adding 'roxygen2' to Suggests field in DESCRIPTION
+✔ Adding 'rlang' to Imports field in DESCRIPTION
+✔ Writing 'R/utils-tidy-eval.R'
+● Run `devtools::document()`
+```
+
+## `usethis`: A Tidy Package
+
+Add pipe (`%>%`). 
+
+```{r}
+use_pipe()
+```
+```{txt}
+✔ Adding 'magrittr' to Imports field in DESCRIPTION
+✔ Writing 'R/utils-pipe.R'
+● Run `devtools::document()` to update 'NAMESPACE'
+```
+
+
+## `usethis`: A Tidy Package
+
+Add the package `stats` to the package. 
+
+```{r}
+use_package("stats")
+```
+```{txt}
+✔ Adding 'stats' to Imports field in DESCRIPTION
+● Refer to functions with `stats::fun()`
+```
+
+# `devtools` | Build / Check / Test {.flexbox .vcenter}
+
+## `devtools`: To Build / Check / Test
+
+Frequent development tasks:
+
+* `load_all()` simulates installing and reloading your package, loading R code
+  in `R/`, compiled shared objects in `src/` and data files in `data/`.
+
+* `document()` updates generated documentation in `man/`, file collation and `NAMESPACE`.
+
+* `test()` reloads your code with `load_all()`, then runs all `testthat` tests.
+
+* `test_coverage()` runs test coverage on your package with [covr](https://github.com/r-lib/covr). 
+  
+## `devtools`: Build / Check / Test
+
+Building and installing:
+
+* `install()` reinstalls the package, detaches the currently loaded version then reloads the new version with `library()`.
+
+* `build()` builds a package file from package sources. You can use it to build a binary version of your package.
+
+
+## `devtools`: Build / Check / Test
+
+Check and release:
+
+* `check()` updates the documentation, then builds and checks the package locally.
+  `check_win()` checks a package using
+  [win-builder](http://win-builder.r-project.org/), and `check_rhub()` checks a package using
+  [r-hub](http://log.r-hub.io/). This allows you to easily check
+  your package on all systems CRAN uses before submission.
+
+* `release()` makes sure everything is ok with your package (including asking
+  you a number of questions), then builds and uploads to CRAN.
+
+## Render the `README.md`
+
+Before trying to render the `README.Rmd`, set the chunk with `library(mypackage)` to `eval = FALSE`.
+
+```{r}
+rmarkdown::render('README.Rmd',  encoding = 'UTF-8')
+```
+
+## Update the Code Documentation
+
+```{r}
+document()
+```
+```{txt}
+Updating mypackage documentation
+Writing NAMESPACE
+Loading mypackage
+Writing NAMESPACE
+Writing pipe.Rd
+Writing tidyeval.Rd
+```
+
+## Check the Package {.smaller}
+
+```{r}
+check()
+```
+```{txt}
+-- R CMD check results ---------------------------------------------------------- mypackage 0.0.0.9000 ----
+Duration: 19.6s
+
+> checking tests ...
+  See below...
+
+-- Test failures ---------------------------------------------------------------------------- testthat ----
+
+> library(testthat)
+> library(mypackage)
+> 
+> test_check("mypackage")
+Error: No tests found for mypackage
+Execution halted
+
+1 error x | 0 warnings √ | 0 notes √
+```
+
+# <img src="https://avatars1.githubusercontent.com/u/8896044?s=460&v=4" height = "150px" id = "picture"></img> {.flexbox .vcenter}
+
+<div class="columns-2 auto-fadein">
+  <a id="social" href="" target="_blank"><i class="fas fa-phone"></i> +33 (0) 374 00 81 29</a> 
+    
+  <a id="social" href="mailto:mickael.canouil@cnrs.fr" target="_blank"><i class="fas fa-envelope"></i> mickael.canouil@cnrs.fr</a> 
+
+  <a id="social" href="http://mickael.canouil.fr" target="_blank"><i class="fas fa-home"></i> mickael.canouil.fr</a> 
+
+  <a id="social" href="https://www.linkedin.com/in/mickael-canouil" target="_blank"><i class="fab fa-linkedin"></i> mickael-canouil</a> 
+
+  <a id="social" href="https://github.com/mcanouil" target="_blank"><i class="fab fa-github"></i> mcanouil</a> 
+
+  <a id="social" href="https://twitter.com/mickaelcanouil" target="_blank"><i class="fab fa-twitter"></i> @mickaelcanouil</a>
+</div>
