@@ -7,4 +7,4 @@ Imports:
     usethis (>= 1.5.1.9000),
     devtools (>= 2.2.1),
     roxygen2 (>= 7.0.2)
-License: MIT + file LICENSE
+License: CC BY 4.0
