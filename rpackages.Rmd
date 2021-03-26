@@ -1,642 +1,271 @@
 ---
-title: '<i class="fab fa-r-project"></i> - Packages'
+title: '<i class="fab fa-r-project"></i> - Packages Development'
+pagetitle: 'R - Packages Development'
 subtitle: "A Short Introduction"
-author: 
-  - name: "Mickaël CANOUIL, *Ph.D.*"
-date: "Monday, the 3<sup>rd</sup> of February, 2020"
-monofont: "Source Code Pro"
-monofontoptions: "Scale=0.7"
-csl: template/csl/apa.csl
+author:  'Mickaël Canouil, *Ph.D.* (<a href="http://m.canouil.fr/" target="_blank"><i class="fas fa-home"></i> m.canouil.fr</a>)'
+institute: "_Inserm U1283 / CNRS UMR8199 / Institut Pasteur de Lille / Université de Lille_"
+date: 'Monday, the 3<sup><i style="font-size:0.5em;">rd</i></sup> of February, 2020'
 params:
-  output_directory: "./"
-  eval: FALSE
+  content: [ 'Rmd/content.Rmd']
+knit: (function(inputFile, encoding) rmarkdown::render(inputFile, encoding = encoding, output_dir = "docs"))
 output:
-  ioslides_presentation:
-    css: [ "template/mc_theme.css", "template/r_colour.css"]
-    logo: "template/logo_UMR.png"
-    smaller: false
+  xaringan::moon_reader:
     self_contained: true
-    mathjax: default
-    fig_width: 5.94
-    fig_height: 3.30
-    transition: 0.5
-    incremental: false
-    code_download: true
-  html_document:
-    toc: false
-    number_sections: TRUE
-    fig_width: 5.94
-    fig_height: 3.30
-    self_contained: true
-    theme: simplex
-editor_options: 
-  chunk_output_type: console
+    css: [css/default.css, css/fonts.css]
+    includes:
+      after_body: css/scripts.html
+    nature:
+      highlightStyle: github
+      highlightLines: false
+      slideNumberFormat: | 
+        <div class="progress-bar-container">
+          <div class="progress-bar" style="width: calc(%current% / %total% * 100%);">
+          </div>
+        </div>
+      ratio: "16:9"
+      countIncrementalSlides: false
 ---
 
-<!--<style>.title-slide hgroup h1 { font-size: 600%; }</style>-->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css">
-
 ```{r setup, include = FALSE}
-options(stringsAsFactors = FALSE)
-options(width = 80)
-options(kableExtra.html.bsTable = TRUE)
+options("width" = 110)
+options(htmltools.dir.version = FALSE)
 
-output_directory <- params[["output_directory"]]
 
-### Load packages and functions
-library(knitr)
-library(rmarkdown)
+### Load Packages ==================================================================================
+suppressPackageStartupMessages({
+  library(here)
+  library(knitr)
+  library(ragg)
+  library(svglite)
+  library(ggplot2)
+  library(ggtext)
+  library(patchwork)
+  library(data.table)
+  library(showtext)
+})
+```
 
-### Set knitr rmarkdown chunk options
+```{r setup-knitr, include = FALSE}
+### knitr settings =================================================================================
 opts_chunk$set(
-  include = TRUE,
-  echo = TRUE,
-  warning = FALSE,
-  message = FALSE,
-  eval = params[["eval"]],
-  tidy = FALSE,
-  crop = TRUE,
-  autodep = FALSE,
-  dpi = 120,
-  # cache = FALSE,
-  # cache.path = NULL,
+  eval = TRUE, # Default: TRUE
+  include = TRUE, # Default: TRUE
+  echo = TRUE, # Default: TRUE
   width = getOption("width"),
-  results = "asis",
-  comment = "#>",
+  comment = "#>", 
   fig.align = "center",
-  fig.path = "images/"
-)
-```
-
-# Helpers | R Packages {.flexbox .vcenter}
-
-## `devtools`: To Develop R Packages
-
-[https://devtools.r-lib.org/](https://devtools.r-lib.org/)
-
-```{r}
-# Install devtools from CRAN
-install.packages("devtools")
-
-# Or the development version from GitHub:
-# install.packages("devtools")
-devtools::install_github("r-lib/devtools")
-```
-
-```{r}
-library("devtools")
-```
-
-
-## `roxygen2`: To Document the Code
-
-[https://roxygen2.r-lib.org/](https://roxygen2.r-lib.org/)
-
-```{r}
-# Install devtools from CRAN
-install.packages("roxygen2")
-
-# Or the development version from GitHub:
-# install.packages("devtools")
-devtools::install_github("r-lib/roxygen2")
-```
-
-```{r}
-library("roxygen2")
-```
-
-## `roxygen2`: To Document the Code
-
-```{r}
-#' Add to message on top of a call to `print()`
-#'
-#' This function print a greeting message on top of
-#' the regular call to `print()`.
-#'
-#' @inheritParams print
-#' @param msg A string to print as a greeting message
-#' @export
-#' @examples
-#' print_msg(1, "The value is: ")
-print_msg <- function(x, msg) {
-  message(msg)
-  x
-}
-```
-
-
-## `usethis`: To Setup the Environment
-
-[https://usethis.r-lib.org/](https://usethis.r-lib.org/)
-
-```{r}
-# Install devtools from CRAN
-install.packages("usethis")
-
-# Or the development version from GitHub:
-# install.packages("devtools")
-devtools::install_github("r-lib/usethis")
-```
-
-```{r}
-library("usethis")
-```
-
-
-## `usethis`: To Setup the Environment
-
-Global options for `usethis`:
-
-```{r}
-options(
-  usethis.full_name = "Firstname Lastname",
-  usethis.protocol  = "ssh",
-  usethis.description = list(
-    `Authors@R` = 'person(
-      given = "Firstname",
-      family = "Lastname",
-      role = c("aut", "cre"),
-      email = "Firstname.Lastname@cnrs.fr",
-      comment = c(ORCID = "0000-0000-0000-0000")
-    )',
-    Version = "0.0.0.9000"
+  fig.width = 11.5, # Default: 7
+  fig.height = 5.75,  # Default: 7
+  dpi = 150, # Default: 72
+  dev = "svglite", # Alt: ragg_png
+  dev.args = list(
+    web_fonts = list("https://fonts.googleapis.com/css?family=Alegreya+Sans")
   )
 )
+font_add_google("Alegreya Sans", "Alegreya Sans", regular.wt = 300)
+showtext_auto()
 ```
 
-## `usethis`: To Setup the Environment
+```{r setup-ggplot2, include = FALSE}
+### Tables and Figures Theme =======================================================================
+theme_mc <- function(
+  base_size = 11,
+  base_family = "",
+  base_line_size = base_size / 22,
+  base_rect_size = base_size / 22,
+  theme = "mc"
+) {
+  bc <- c("#333333", "#7F7F7F", "#FFFFFF")
+  half_line <- base_size / 2
+  ggplot2::theme(
+    line = ggplot2::element_line(
+      colour = bc[3],
+      size = base_line_size,
+      linetype = 1,
+      lineend = "butt"
+    ),
+    rect = ggplot2::element_rect(
+      fill = bc[1],
+      colour = bc[3],
+      size = base_rect_size,
+      linetype = 1
+    ),
+    text = ggplot2::element_text(
+      family = base_family,
+      face = "plain",
+      colour = bc[3],
+      size = base_size,
+      lineheight = 0.9,
+      hjust = 0.5,
+      vjust = 0.5,
+      angle = 0,
+      margin = ggplot2::margin(),
+      debug = FALSE
+    ),
+    title = NULL,
+    aspect.ratio = NULL,
 
-Setup Git:
+    axis.title = NULL,
+    axis.title.x = ggplot2::element_text(margin = ggplot2::margin(t = half_line), vjust = 1),
+    axis.title.x.top = ggplot2::element_text(margin = ggplot2::margin(b = half_line), vjust = 0),
+    axis.title.x.bottom = NULL,
+    axis.title.y = ggplot2::element_text(angle = 90, margin = ggplot2::margin(r = half_line), vjust = 1),
+    axis.title.y.left = NULL,
+    axis.title.y.right = ggplot2::element_text(angle = -90, margin = ggplot2::margin(l = half_line), vjust = 0),
+    axis.text = ggplot2::element_text(size = ggplot2::rel(0.8), colour = bc[3]),
+    axis.text.x = ggplot2::element_text(margin = ggplot2::margin(t = 0.8 * half_line / 2), vjust = 1),
+    axis.text.x.top = ggplot2::element_text(margin = ggplot2::margin(b = 0.8 * half_line / 2), vjust = 0),
+    axis.text.x.bottom = NULL,
+    axis.text.y = ggplot2::element_text(margin = ggplot2::margin(r = 0.8 * half_line / 2), hjust = 1),
+    axis.text.y.left = NULL,
+    axis.text.y.right = ggplot2::element_text(margin = ggplot2::margin(l = 0.8 * half_line / 2), hjust = 0),
+    axis.ticks = ggplot2::element_line(colour = bc[3]),
+    axis.ticks.x = NULL,
+    axis.ticks.x.top = NULL,
+    axis.ticks.x.bottom = NULL,
+    axis.ticks.y = NULL,
+    axis.ticks.y.left = NULL,
+    axis.ticks.y.right = NULL,
+    axis.ticks.length = ggplot2::unit(half_line / 2, "pt"),
+    axis.ticks.length.x = NULL,
+    axis.ticks.length.x.top = NULL,
+    axis.ticks.length.x.bottom = NULL,
+    axis.ticks.length.y = NULL,
+    axis.ticks.length.y.left = NULL,
+    axis.ticks.length.y.right = NULL,
+    axis.line = ggplot2::element_blank(),
+    axis.line.x = NULL,
+    axis.line.x.top = NULL,
+    axis.line.x.bottom = NULL,
+    axis.line.y = NULL,
+    axis.line.y.left = NULL,
+    axis.line.y.right = NULL,
 
-```{r}
-use_git_config(
-  user.name = "Firstname Lastname", 
-  user.email = "Firstname.Lastname@cnrs.fr"
-)
-# git_sitrep() # To check if Git is configured properly
-```
+    legend.background = ggplot2::element_rect(fill = bc[1], colour = NA),
+    legend.margin = ggplot2::margin(half_line, half_line, half_line, half_line),
+    legend.spacing = ggplot2::unit(2 * half_line, "pt"),
+    legend.spacing.x = NULL,
+    legend.spacing.y = NULL,
+    legend.key = ggplot2::element_rect(fill = bc[1], colour = bc[3]),
+    legend.key.size = ggplot2::unit(1.2, "lines"),
+    legend.key.height = NULL,
+    legend.key.width = NULL,
+    legend.text = ggplot2::element_text(size = ggplot2::rel(0.8)),
+    legend.text.align = NULL,
+    legend.title = ggplot2::element_text(hjust = 0),
+    legend.title.align = NULL,
+    legend.position = "right",
+    legend.direction = NULL,
+    legend.justification = "center",
+    legend.box = NULL,
+    legend.box.just = NULL,
+    legend.box.margin = ggplot2::margin(0, 0, 0, 0, "cm"),
+    legend.box.background = ggplot2::element_blank(),
+    legend.box.spacing = ggplot2::unit(2 * half_line, "pt"),
 
-```{bash}
-git config --global user.name 'Firstname Lastname'
-git config --global user.email 'Firstname.Lastname@cnrs.fr'
-git config --global --list
-```
+    panel.background = ggplot2::element_rect(fill = bc[1], colour = NA),
+    panel.border = ggplot2::element_rect(fill = NA, colour = bc[3], size = 0.5, linetype = "solid"),
+    panel.spacing = ggplot2::unit(half_line, "pt"),
+    panel.spacing.x = NULL,
+    panel.spacing.y = NULL,
+    panel.grid = ggplot2::element_line(colour = bc[2]),
+    panel.grid.major = ggplot2::element_line(colour = bc[2]),
+    panel.grid.minor = ggplot2::element_line(colour = bc[2], size = ggplot2::rel(0.5)),
+    panel.grid.major.x = NULL,
+    panel.grid.major.y = NULL,
+    panel.grid.minor.x = NULL,
+    panel.grid.minor.y = NULL,
+    panel.ontop = FALSE,
 
-## `usethis`: To Setup the Environment
+    plot.background = ggplot2::element_rect(colour = bc[1]),
+    plot.title = ggplot2::element_text(
+      size = ggplot2::rel(1.25),
+      face = "bold",
+      hjust = 0,
+      vjust = 1,
+      margin = ggplot2::margin(b = half_line)
+    ),
+    plot.title.position = "plot",
+    plot.subtitle = ggplot2::element_text(
+      size = ggplot2::rel(1),
+      face = "italic",
+      hjust = 0,
+      vjust = 1,
+      margin = ggplot2::margin(b = half_line)
+    ),
+    plot.caption = ggplot2::element_text(
+      size = ggplot2::rel(0.75),
+      face = "italic",
+      hjust = 1,
+      vjust = 1,
+      margin = ggplot2::margin(t = half_line)
+    ),
+    plot.caption.position = "plot",
+    plot.tag = ggplot2::element_text(size = ggplot2::rel(1.25), hjust = 0.5, vjust = 0.5),
+    plot.tag.position = "topleft",
+    plot.margin = ggplot2::margin(half_line, half_line, half_line, half_line),
 
-First an access token from GitHub needs to be created: https://github.com/settings/tokens
+    strip.background = ggplot2::element_rect(fill = bc[1], colour = bc[3]),
+    strip.background.x = NULL,
+    strip.background.y = NULL,
+    strip.placement = "inside",
+    strip.placement.x = NULL,
+    strip.placement.y = NULL,
+    strip.text = ggplot2::element_text(
+      colour = bc[3],
+      size = ggplot2::rel(0.8),
+      margin = ggplot2::margin(0.8 * half_line, 0.8 * half_line, 0.8 * half_line, 0.8 * half_line)
+    ),
+    strip.text.x = NULL,
+    strip.text.y = ggplot2::element_text(angle = -90),
+    strip.switch.pad.grid = ggplot2::unit(half_line / 2, "pt"),
+    strip.switch.pad.wrap = ggplot2::unit(half_line / 2, "pt"),
 
-```{r}
-browse_github_token() # open the form in a browser
-edit_r_environ() # open .Renviron file from your home
-```
-
-Edit the `.Renviron` and add your token.
-```{txt}
-GITHUB_PAT=xloltrglmlm9v0wqb4zgnks86z5uwkqgoat29aar
-```
-
-Restart and check if you have acces to your token
-```{r}
-Sys.getenv("GITHUB_PAT")
-github_token()
-```
-
-
-# Let's `usethis` | Create an R package {.flexbox .vcenter}
-
-## `usethis`: A Tidy Package {.smaller}
-
-```{r}
-library("usethis")
-create_tidy_package()
-
-function (path, name = "RStudio") {
-  path <- create_package(path, rstudio = TRUE, open = FALSE)
-  old_project <- proj_set(path)
-  on.exit(proj_set(old_project), add = TRUE)
-  use_roxygen_md()
-  use_testthat()
-  use_gpl3_license(name)
-  use_tidy_description()
-  use_readme_rmd(open = FALSE)
-  use_lifecycle_badge("experimental")
-  use_cran_badge()
-  use_cran_comments(open = FALSE)
-  use_tidy_github()
-  ui_todo("In the new package, remember to do:")
-  ui_todo("{ui_code('use_git()')}")
-  ui_todo("{ui_code('use_github()')}")
-  ui_todo("{ui_code('use_tidy_ci()')}")
-  ui_todo("{ui_code('use_pkgdown()')}")
-  ui_todo("{ui_code('use_pkgdown_travis()')}")
-  proj_activate(path)
+    complete = TRUE
+  )
 }
+theme_set(theme_mc(base_size = 18, base_family = "Alegreya Sans"))
+theme_update(
+  plot.title.position = "plot",
+  plot.caption.position = "plot",
+  plot.title = element_markdown(),
+  plot.subtitle = element_markdown(face = "italic", size = rel(0.80)),
+  plot.caption = element_markdown(face = "italic", size = rel(0.65)),
+  axis.title.x = element_markdown(),
+  axis.text.x = element_markdown(),
+  axis.title.y = element_markdown(),
+  axis.text.y = element_markdown()
+)
+
+options(
+  ggplot2.discrete.colour = function(...) scale_colour_viridis_d(..., begin = 0.15, end = 0.85),
+  ggplot2.discrete.fill = function(...) scale_fill_viridis_d(..., begin = 0.15, end = 0.85),
+  ggplot2.continuous.colour = function(...) scale_colour_viridis_c(..., begin = 0.15, end = 0.85),
+  ggplot2.continuous.fill = function(...) scale_fill_viridis_c(..., begin = 0.15, end = 0.85)
+)
 ```
 
+```{r, child = params[["content"]]}
 
-## `usethis`: A Tidy Package {.smaller}
-
-Create the package skeleton.
-
-```{r}
-path <- create_package("mypackage", rstudio = TRUE, open = FALSE)
-```
-```{txt}
-✔ Creating './'
-✔ Creating 'R/'
-✔ Writing 'DESCRIPTION'
-Package: mypackage
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
-Authors@R (parsed):
-    * First Last <first.last@example.com> [aut, cre] (<https://orcid.org/YOUR-ORCID-ID>)
-Description: What the package does (one paragraph).
-License: What license it uses
-Encoding: UTF-8
-LazyData: true
-✔ Writing 'NAMESPACE'
-✔ Writing 'mypackage.Rproj'
-✔ Adding '.Rproj.user' to '.gitignore'
-✔ Adding '^mypackage\\.Rproj$', '^\\.Rproj\\.user$' to '.Rbuildignore'
 ```
 
-## `usethis`: A Tidy Package
+---
+class: part-slide
 
-Setup Rstudio project (`rstudio = TRUE` from `create_package()`).
+# <img src = "https://avatars1.githubusercontent.com/u/8896044" height = "150px" id = "picture" />
 
-```{r}
-old_project <- proj_set(path)
-on.exit(proj_set(old_project), add = TRUE)
-```
+.center[
 
-## `usethis`: A Tidy Package
+<a href = "http://m.canouil.fr" target = "_blank"><i class = "fas fa-home"></i> m.canouil.fr</a>
 
-Setup roxygen2 as tool to render documentation.
+.column[
+<a href = "https://www.linkedin.com/in/mickael-canouil/" target = "_blank"><i class = "fab fa-linkedin"></i> mickael-canouil</a>
+]
+.column[
+<a href = "https://github.com/mcanouil/" target = "_blank"><i class = "fab fa-github"></i> mcanouil</a>
+]
+.column[
+<a href = "https://twitter.com/mickaelcanouil/" target = "_blank"><i class = "fab fa-twitter"></i> @mickaelcanouil</a>
+]
 
-```{r}
-use_roxygen_md()
-```
-```{txt}
-✔ Setting Roxygen field in DESCRIPTION to 'list(markdown = TRUE)'
-✔ Setting RoxygenNote field in DESCRIPTION to '7.0.2'
-● Run `devtools::document()`
-```
-
-## `usethis`: A Tidy Package
-
-Setup unit test directory with default scripts.
-
-```{r}
-use_testthat()
-```
-```{txt}
-✔ Adding 'testthat' to Suggests field in DESCRIPTION
-✔ Creating 'tests/testthat/'
-✔ Writing 'tests/testthat.R'
-● Call `use_test()` to initialize a basic test file and open it for editing.
-```
-
-## `usethis`: A Tidy Package
-
-Setup licence (several available).
-
-```{r}
-use_gpl3_license("mypackage")
-```
-```{txt}
-✔ Setting License field in DESCRIPTION to 'GPL-3 + file LICENSE'
-✔ Writing 'LICENSE.md'
-✔ Adding '^LICENSE\\.md$' to '.Rbuildignore'
-✔ Writing 'LICENSE'
-```
-
-## `usethis`: A Tidy Package
-
-Format/clean `DESCRIPTION` file.
-
-```{r}
-use_tidy_description()
-```
-
-Add version for packages listed in `DESCRIPTION` (*e.g.*, `Imports` field).
-
-```{r}
-use_tidy_versions()
-```
-
-
-## `usethis`: A Tidy Package
-
-Add an Rmarkdown script to render the `README.md` file.
-
-```{r}
-use_readme_rmd(open = FALSE)
-```
-```{txt}
-✔ Writing 'README.Rmd'
-✔ Adding '^README\\.Rmd$' to '.Rbuildignore'
-```
-
-## `usethis`: A Tidy Package
-
-Add a development status badge following tidyverse convention.
-
-```{r}
-use_lifecycle_badge("experimental")
-```
-```{txt}
-✔ Adding Lifecycle: experimental badge to 'README.Rmd'
-● Re-knit 'README.Rmd
-```
-
-## `usethis`: A Tidy Package
-
-Add a CRAN badge displaying CRAN version.
-
-```{r}
-use_cran_badge()
-```
-```{txt}
-✔ Adding CRAN status badge to 'README.Rmd'
-● Re-knit 'README.Rmd'
-```
-
-## `usethis`: A Tidy Package
-
-Add a markdown file (used for the release to CRAN).
-
-```{r}
-use_cran_comments(open = FALSE)
-```
-```{txt}
-✔ Writing 'cran-comments.md'
-✔ Adding '^cran-comments\\.md$' to '.Rbuildignore'
-```
-
-## `usethis`: A Tidy Package {.smaller}
-
-Add default files to use in GitHub (*Check them*).  
-**Note:** `github/SUPPORT.md` must be edited to fix GitHub repository at line 23.
-
-```{r}
-use_tidy_github()
-```
-```{txt}
-✔ Creating '.github/'
-✔ Adding '^\\.github$' to '.Rbuildignore'
-✔ Writing '.github/CONTRIBUTING.md'
-✔ Creating '.github/ISSUE_TEMPLATE/'
-✔ Adding '^\\.github/ISSUE_TEMPLATE$' to '.Rbuildignore'
-✔ Writing '.github/ISSUE_TEMPLATE/issue_template.md'
-✔ Writing '.github/SUPPORT.md'
-✔ Writing '.github/CODE_OF_CONDUCT.md'
-● Don't forget to describe the code of conduct in your README:
-  Please note that the 'mypackage' project is released with a
-  [Contributor Code of Conduct](.github/CODE_OF_CONDUCT.md).
-  By contributing to this project, you agree to abide by its terms.
-  [Copied to clipboard]
-```
-
-## `usethis`: A Tidy Package
-
-```{r}
-ui_todo("In the new package, remember to do:")
-ui_todo("{ui_code('use_git()')}")
-ui_todo("{ui_code('use_github()')}")
-ui_todo("{ui_code('use_tidy_ci()')}")
-ui_todo("{ui_code('use_pkgdown()')}")
-ui_todo("{ui_code('use_pkgdown_travis()')}")
-```
-```{txt}
-● In the new package, remember to do:
-● `use_git()`
-● `use_github()`
-● `use_tidy_ci()`
-● `use_pkgdown()`
-● `use_pkgdown_travis()`
-```
-
-## `usethis`: A Tidy Package
-
-Open the newly created package as an Rstudio project.
-
-```{r}
-proj_activate(path)
-```
-```{txt}
-✔ Opening 'C:/mypackage' in new RStudio session
-```
-
-
-## `usethis`: A Tidy Package {.smaller}
-
-Setup the package to use Git.
-
-```{r}
-use_git()
-```
-```{txt}
-✔ Initialising Git repo
-✔ Adding '.Rhistory', '.RData' to '.gitignore'
-There are 11 uncommitted files:
-* '.github/'
-* '.gitignore'
-* '.Rbuildignore'
-* 'cran-comments.md'
-* 'DESCRIPTION'
-* 'LICENSE'
-* 'LICENSE.md'
-* 'mypackage.Rproj'
-* 'NAMESPACE'
-* 'README.Rmd'
-* 'tests/'
-Is it ok to commit them?
-
-1: I agree
-2: Not now
-3: No way
-```
-
-## `usethis`: A Tidy Package
-
-Setup a repository on GitHub for the package.
-
-```{r}
-use_github()
-```
-```{txt}
-✔ Setting active project to 'C:/mypackage'
-✔ Checking that current branch is 'master'
-● Check title and description
-  Name:        mypackage
-  Description: What the Package Does (One Line, Title Case)
-Are title and description ok?
-
-1: Negative
-2: Absolutely not
-3: Yup
-```
-
-## `usethis`: A Tidy Package {.smaller}
-
-Setup continuous integration using travis-CI and code coverage.
-
-```{r}
-use_tidy_ci()
-```
-```{txt}
-✔ Writing '.travis.yml'
-✔ Adding '^\\.travis\\.yml$' to '.Rbuildignore'
-✔ Writing 'codecov.yml'
-✔ Adding '^codecov\\.yml$' to '.Rbuildignore'
-✔ Adding 'R' to Depends field in DESCRIPTION
-✔ Adding 'covr' to Suggests field in DESCRIPTION
-✔ Adding '^\\.covrignore$' to '.Rbuildignore'
-✔ Adding 'R/deprec-*.R', 'R/compat-*.R' to '.covrignore'
-✔ Adding Travis build status badge to 'README.Rmd'
-● Re-knit 'README.Rmd'
-✔ Adding Codecov test coverage badge to 'README.Rmd'
-● Re-knit 'README.Rmd'
-✔ Replacing release environment in 'cran-comments.md'
-● Turn on travis for your repo at https://travis-ci.org/profile/user
-```
-
-## `usethis`: A Tidy Package
-
-Add utils for tidy-evaluation (*e.g.*, `.data` pronoun). 
-
-```{r}
-use_tidy_eval()
-```
-```{txt}
-✔ Adding 'roxygen2' to Suggests field in DESCRIPTION
-✔ Adding 'rlang' to Imports field in DESCRIPTION
-✔ Writing 'R/utils-tidy-eval.R'
-● Run `devtools::document()`
-```
-
-## `usethis`: A Tidy Package
-
-Add pipe (`%>%`). 
-
-```{r}
-use_pipe()
-```
-```{txt}
-✔ Adding 'magrittr' to Imports field in DESCRIPTION
-✔ Writing 'R/utils-pipe.R'
-● Run `devtools::document()` to update 'NAMESPACE'
-```
-
-
-## `usethis`: A Tidy Package
-
-Add the package `stats` to the package. 
-
-```{r}
-use_package("stats")
-```
-```{txt}
-✔ Adding 'stats' to Imports field in DESCRIPTION
-● Refer to functions with `stats::fun()`
-```
-
-# `devtools` | Build / Check / Test {.flexbox .vcenter}
-
-## `devtools`: To Build / Check / Test
-
-Frequent development tasks:
-
-* `load_all()` simulates installing and reloading your package, loading R code
-  in `R/`, compiled shared objects in `src/` and data files in `data/`.
-
-* `document()` updates generated documentation in `man/`, file collation and `NAMESPACE`.
-
-* `test()` reloads your code with `load_all()`, then runs all `testthat` tests.
-
-* `test_coverage()` runs test coverage on your package with [covr](https://github.com/r-lib/covr). 
-  
-## `devtools`: Build / Check / Test
-
-Building and installing:
-
-* `install()` reinstalls the package, detaches the currently loaded version then reloads the new version with `library()`.
-
-* `build()` builds a package file from package sources. You can use it to build a binary version of your package.
-
-
-## `devtools`: Build / Check / Test
-
-Check and release:
-
-* `check()` updates the documentation, then builds and checks the package locally.
-  `check_win()` checks a package using
-  [win-builder](http://win-builder.r-project.org/), and `check_rhub()` checks a package using
-  [r-hub](http://log.r-hub.io/). This allows you to easily check
-  your package on all systems CRAN uses before submission.
-
-* `release()` makes sure everything is ok with your package (including asking
-  you a number of questions), then builds and uploads to CRAN.
-
-## Render the `README.md`
-
-Before trying to render the `README.Rmd`, set the chunk with `library(mypackage)` to `eval = FALSE`.
-
-```{r}
-rmarkdown::render('README.Rmd',  encoding = 'UTF-8')
-```
-
-## Update the Code Documentation
-
-```{r}
-document()
-```
-```{txt}
-Updating mypackage documentation
-Writing NAMESPACE
-Loading mypackage
-Writing NAMESPACE
-Writing pipe.Rd
-Writing tidyeval.Rd
-```
-
-## Check the Package {.smaller}
-
-```{r}
-check()
-```
-```{txt}
--- R CMD check results ---------------------------------------------------------- mypackage 0.0.0.9000 ----
-Duration: 19.6s
-
-> checking tests ...
-  See below...
-
--- Test failures ---------------------------------------------------------------------------- testthat ----
-
-> library(testthat)
-> library(mypackage)
-> 
-> test_check("mypackage")
-Error: No tests found for mypackage
-Execution halted
-
-1 error x | 0 warnings √ | 0 notes √
-```
-
-# <img src="https://avatars1.githubusercontent.com/u/8896044?s=460&v=4" height = "150px" id = "picture"></img> {.flexbox .vcenter}
-
-<div class="columns-2 auto-fadein">
-  <a id="social" href="" target="_blank"><i class="fas fa-phone"></i> +33 (0) 374 00 81 29</a> 
-    
-  <a id="social" href="mailto:mickael.canouil@cnrs.fr" target="_blank"><i class="fas fa-envelope"></i> mickael.canouil@cnrs.fr</a> 
-
-  <a id="social" href="http://mickael.canouil.fr" target="_blank"><i class="fas fa-home"></i> mickael.canouil.fr</a> 
-
-  <a id="social" href="https://www.linkedin.com/in/mickael-canouil" target="_blank"><i class="fab fa-linkedin"></i> mickael-canouil</a> 
-
-  <a id="social" href="https://github.com/mcanouil" target="_blank"><i class="fab fa-github"></i> mcanouil</a> 
-
-  <a id="social" href="https://twitter.com/mickaelcanouil" target="_blank"><i class="fab fa-twitter"></i> @mickaelcanouil</a>
-</div>
+]
