@@ -1,5 +1,12 @@
 
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
 # rpackages
+
+<!-- badges: start -->
+
+[![GitHub](https://img.shields.io/github/license/mcanouil/rpackages)](LICENSE)
+<!-- badges: end -->
 
 This is the work-in-progress repo for the slides about rpackages.
 

@@ -7,7 +7,7 @@ output: github_document
 # rpackages
 
 <!-- badges: start -->
-![GitHub](https://img.shields.io/github/license/mcanouil/rpackages?style=plastic)
+[![GitHub](https://img.shields.io/github/license/mcanouil/rpackages)](LICENSE)
 <!-- badges: end -->
 
 This is the work-in-progress repo for the slides about rpackages.
